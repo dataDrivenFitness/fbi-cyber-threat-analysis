@@ -1,0 +1,186 @@
+---
+title: 'Operation Silent Web: Cybersecurity Threat Analysis'
+author: 'Christopher Davis'
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+# Load necessary libraries
+library(tidyverse)
+library(lubridate)
+library(knitr)
+library(forecast)
+```
+
+# Executive Summary
+
+This analysis simulates an FBI-led cybersecurity investigation using a mock dataset of over 1,000 cyber incidents reported across the United States between 2023 and 2024. The investigation identifies **phishing and ransomware** as the most frequent and damaging attack types, disproportionately affecting the **healthcare and banking sectors**. Geographically, **California and New York** emerged as primary hotspots. A time-series forecast projects a stable monthly incident volume of approximately **40–42 attacks in 2025**, with a confidence range between **34 and 50 incidents**. These findings suggest a continued threat environment that, while steady, still requires strategic readiness, sector-specific defenses, and enhanced interagency coordination.
+
+---
+
+# 1. Data Overview
+
+```{r data-load}
+# Load the dataset
+cyber_data <- read_csv("data/cyber_incidents_mock.csv")
+cyber_data$incident_date <- as.Date(cyber_data$incident_date)
+
+# Display the structure of the data
+glimpse(cyber_data)
+```
+
+This dataset includes 1,000 simulated cyberattack records with details such as attack type, severity, targeted sector, state of occurrence, incident date, and estimated financial loss.
+
+---
+
+# 2. Attack Type Frequency
+
+```{r attack-type-plot}
+cyber_data %>%
+  count(attack_type) %>%
+  ggplot(aes(x = reorder(attack_type, n), y = n)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(
+    title = "Attack Type Frequency",
+    x = "Attack Type",
+    y = "Number of Incidents"
+  )
+```
+
+**Phishing** is the most common cyberattack type, followed by **ransomware** and **malware**. These categories make up the majority of reported threats and are particularly damaging in sectors handling sensitive or financial data.
+
+---
+
+# 3. Severity Levels
+
+```{r severity-plot}
+cyber_data %>%
+  count(severity_level) %>%
+  ggplot(aes(x = severity_level, y = n)) +
+  geom_col(fill = "firebrick") +
+  labs(
+    title = "Severity Level Distribution",
+    x = "Severity Level",
+    y = "Number of Incidents"
+  )
+```
+
+Most incidents are categorized as **Low** or **Medium** severity. However, a notable percentage of **Critical** cases warrants resource prioritization for early detection and response.
+
+---
+
+# 4. Industry Sector Impact
+
+```{r sector-impact}
+cyber_data %>%
+  count(target_sector) %>%
+  ggplot(aes(x = reorder(target_sector, n), y = n)) +
+  geom_col(fill = "darkorange") +
+  coord_flip() +
+  labs(
+    title = "Incident Volume by Sector",
+    x = "Sector",
+    y = "Incident Count"
+  )
+```
+
+The **Healthcare** and **Banking** sectors were the most frequently targeted, aligning with national patterns where attackers seek maximum disruption or financial gain.
+
+---
+
+# 5. Geographic Hotspots
+
+```{r hotspot-map}
+cyber_data %>%
+  count(reported_location) %>%
+  top_n(5) %>%
+  ggplot(aes(x = reorder(reported_location, n), y = n)) +
+  geom_col(fill = "purple") +
+  coord_flip() +
+  labs(
+    title = "Top 5 States by Incident Volume",
+    x = "State",
+    y = "Incidents"
+  )
+```
+
+States like **California, New York, Texas, and Florida** lead in reported incidents, signaling high-value targets or more aggressive threat exposure.
+
+---
+
+# 6. Incident Trends Over Time
+
+```{r trend-line}
+cyber_data %>%
+  mutate(month = floor_date(incident_date, "month")) %>%
+  count(month) %>%
+  ggplot(aes(x = month, y = n)) +
+  geom_line(color = "darkgreen", size = 1) +
+  geom_smooth(se = FALSE, color = "black") +
+  labs(
+    title = "Monthly Incident Trend",
+    x = "Month",
+    y = "Incidents"
+  )
+```
+
+The trend shows a **steady volume of cyber incidents** over time, with minor fluctuations that may correspond to seasonal behaviors or policy changes.
+
+---
+
+# 7. Forecast for 2025
+
+```{r forecast-model}
+# Aggregate incidents by month
+monthly_data <- cyber_data %>%
+  mutate(month = floor_date(incident_date, "month")) %>%
+  count(month)
+
+# Create time series
+incident_ts <- ts(monthly_data$n, start = c(2023, 1), frequency = 12)
+
+# Forecast
+model <- auto.arima(incident_ts)
+forecasted <- forecast(model, h = 12)
+
+# Plot forecast
+autoplot(forecasted) +
+  labs(
+    title = "Forecasted Monthly Cyber Incidents (2025)",
+    x = "Month",
+    y = "Predicted Incident Count"
+  )
+```
+
+Based on time-series modeling, the monthly incident volume is expected to average **40–42**, with a 95% confidence range of **34 to 50 incidents**. This stability masks the continued need for constant vigilance.
+
+---
+
+# 8. Recommendations
+
+- Prioritize cyber defense investments in **healthcare and banking sectors**
+- Deploy additional monitoring and field assets in **California, New York, Texas**
+- Launch early-warning initiatives during historically active months
+- Sustain 24/7 incident response readiness given baseline threat levels
+- Continue federal-state collaboration across intelligence, infrastructure, and tech
+
+---
+
+# Appendix
+
+```{r loss-summary}
+# Summary of losses by attack type
+cyber_data %>%
+  group_by(attack_type) %>%
+  summarize(
+    total_loss = sum(estimated_loss_usd),
+    avg_loss = mean(estimated_loss_usd),
+    .groups = 'drop'
+  ) %>%
+  arrange(desc(total_loss)) %>%
+  kable(digits = 2)
+```

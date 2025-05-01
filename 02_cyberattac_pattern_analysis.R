@@ -107,6 +107,3 @@ ggsave("visuals/top_5_states_hotspot.png", p4, width = 8, height = 5)
 # -----------------------------------------
 # 5. End of Script
 # -----------------------------------------
-
-# All summary tables and plots are now saved for use in your report.
-# Next step: open `cyber_analysis_report.Rmd` and use these outputs.

@@ -80,6 +80,3 @@ ggsave("visuals/forecasted_cyber_incidents.png", width = 8, height = 5)
 
 # Save forecasted values to CSV
 write_csv(as_tibble(forecasted), "data/cyber_incident_forecast.csv")
-
-# Done!
-# You can now include this chart and results in your R Markdown report.

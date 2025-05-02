@@ -1,5 +1,6 @@
 # ==================================================
 # Operation Silent Web — Shiny App
+# Author: Christopher Davis
 # Purpose: Interactively explore cyberattack patterns
 # ==================================================
 

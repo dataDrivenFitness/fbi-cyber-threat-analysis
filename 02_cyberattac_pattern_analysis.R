@@ -1,6 +1,6 @@
 # ================================================
 # FBI Mock Project: Cyberattack Pattern Analysis
-# Author: [Your Name]
+# Author: Christopher Davis
 # Purpose: Investigate cyberattack trends from mock data
 # ================================================
 

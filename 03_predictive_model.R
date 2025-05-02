@@ -1,5 +1,6 @@
 # =============================================
 # Operation Silent Web — Predictive Model Script
+# Author: Christopher Davis
 # Purpose: Forecast future cyberattacks by month
 # =============================================
 
